@@ -193,3 +193,59 @@ function New-NSVolume
     {
     }
 }
+
+<#
+.Synopsis
+   Short description
+.DESCRIPTION
+   Long description
+.EXAMPLE
+   Example of how to use this cmdlet
+.EXAMPLE
+   Another example of how to use this cmdlet
+#>
+function Set-NSVolumeState
+{
+    [CmdletBinding()]
+    Param
+    (
+        # Param1 help description
+        [Parameter(Mandatory=$true,
+                   ValueFromPipeline=$true,
+                   Position=0)]
+        $Volume,
+
+        # Param2 help description
+        [parameter(madatory=$true,parametersetname='on')]
+        [switch]
+        $Online,
+        [parameter(madatory=$true,parametersetname='off')]
+        [switch]
+        $Offline,
+        [parameter(madatory=$true,parametersetname='state')]
+        [string]
+        $State
+    )
+
+    Begin
+    {
+        if(-not $Script:NSUnit)
+        {
+            Write-Error "Connect to unit first!" -ErrorAction Stop
+        }
+        
+        if($Volume.gettype().name -eq "vol"){$Volume=$Volume.name}
+        
+        $rtncode = $Script:NSUnit.getVolList($sid.Value, [ref]$vols)
+        if($rtncode -ne "Smok")
+        {
+            Write-Error "Error getting volume list! code: $rtncode" -ErrorAction Stop
+        }
+    }
+    Process
+    {
+    }
+    End
+    {
+    }
+}
