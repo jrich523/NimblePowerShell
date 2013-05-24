@@ -216,15 +216,12 @@ function Set-NSVolumeState
         $Volume,
 
         # Param2 help description
-        [parameter(madatory=$true,parametersetname='on')]
+        [parameter(mandatory=$true,parametersetname='on')]
         [switch]
         $Online,
-        [parameter(madatory=$true,parametersetname='off')]
+        [parameter(mandatory=$true,parametersetname='off')]
         [switch]
-        $Offline,
-        [parameter(madatory=$true,parametersetname='state')]
-        [string]
-        $State
+        $Offline
     )
 
     Begin
@@ -235,8 +232,8 @@ function Set-NSVolumeState
         }
         
         if($Volume.gettype().name -eq "vol"){$Volume=$Volume.name}
-        
-        $rtncode = $Script:NSUnit.getVolList($sid.Value, [ref]$vols)
+        $on = if($Online){$true}else{$false}
+        $rtncode = $Script:NSUnit.onlineVol($sid.Value, $volume,$On)
         if($rtncode -ne "Smok")
         {
             Write-Error "Error getting volume list! code: $rtncode" -ErrorAction Stop
