@@ -170,7 +170,8 @@ function New-NSVolume
         #gen prop
         $attr.description = $Description
         $attr.online = $true
-        $attr.perfpolname = $PerformancePolicy
+        $attr.perfpolname = $PSBoundParameters.PerformancePolicy
+        
         if($MultipleInitiator)
         {
             $attr.multiinitiator = $true
@@ -180,8 +181,8 @@ function New-NSVolume
     }
     Process
     {
-        $str = $attr.name = $Name
-        $rtncode = $gm.createVol($script:sid.Value,$attr,[ref]$str)
+        $attr.name = $Name
+        $rtncode = $script:nsunit.createVol($script:sid.Value,$attr,[ref]$str)
         if($rtncode -ne "Smok")
         {
             Write-Error "Error Creating volume $Name! code: $rtncode"
@@ -241,6 +242,60 @@ function Set-NSVolumeState
     }
     Process
     {
+    }
+    End
+    {
+    }
+}
+
+<#
+.Synopsis
+   Short description
+.DESCRIPTION
+   Long description
+.EXAMPLE
+   Example of how to use this cmdlet
+.EXAMPLE
+   Another example of how to use this cmdlet
+#>
+function Remove-NSVolume
+{
+    [CmdletBinding(SupportsShouldProcess=$True,ConfirmImpact='High')]
+
+    Param
+    (
+        # Name of the volume you'd like to delete
+        [Parameter(Mandatory=$true,
+                   ValueFromPipeline=$true,
+                   Position=0)]
+        $Name,
+
+        # Param2 help description
+        [switch]
+        $Force
+    )
+
+    Begin
+    {
+        if(-not $Script:NSUnit)
+        {
+            Write-Error "Connect to unit first!" -ErrorAction Stop
+        }
+        
+        ###if($Volume.gettype().name -eq "vol"){$Volume=$Volume.name}
+        if($Force){$ConfirmPreference= 'None'}
+    }
+    Process
+    {
+        if($PSCmdlet.ShouldProcess($name,"Delete Volume"))
+        {
+            #set offline
+            $rtncode = $Script:nsunit.deleteVol($sid.value,$name)
+            if($rtncode -ne "SMok")
+            {
+                write-error "Delete failed! Code: $rtncode"
+            }
+        }
     }
     End
     {
