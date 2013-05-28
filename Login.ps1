@@ -31,7 +31,8 @@ function Connect-NSArray
     $script:sid = [ref]""
     $return = $script:nsunit.login($UserName, $Password, $script:sid)
     if ($return -eq "SMok") {
-      Write-Host "Logged into array @ " $script:nsunit.Url
+      $arrname = $script:nsunit.getControllerName($sid.value)
+      Write-Host "Logged into array @ " $arrname
     }
     else {
       Write-Host "Couldn't login to " $script:nsunit.Url
