@@ -287,6 +287,21 @@ function Remove-NSVolume
     }
     Process
     {
+        
+        ## delete snaps
+            ##todo: impliment snap delete logic
+            ## it WILL delete when there are snaps
+        ## take offline
+        if(Get-NSVolume $name |select -exp online)
+        {
+            if($PSCmdlet.ShouldProcess($name,"Take volume offline"))
+            {
+                Set-NSVolumeState -Volume $name -Offline
+            }
+
+        }
+
+        ##delete
         if($PSCmdlet.ShouldProcess($name,"Delete Volume"))
         {
             #set offline
