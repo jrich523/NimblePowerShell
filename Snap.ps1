@@ -106,3 +106,63 @@ function New-NSSnapshot
     {
     }
 }
+
+<#
+.Synopsis
+   Short description
+.DESCRIPTION
+   Long description
+.EXAMPLE
+   Example of how to use this cmdlet
+.EXAMPLE
+   Another example of how to use this cmdlet
+#>
+function Remove-NSSnapShot
+{
+    [CmdletBinding(SupportsShouldProcess=$True,ConfirmImpact='High')]
+
+    Param
+    (
+        # Name of the volume you'd like to delete
+        [Parameter(Mandatory=$true,
+                   ValueFromPipeline=$true,
+                   ValueFromPipelineByPropertyName=$true,
+                   Position=0)]
+        $Name,
+
+        #
+        [Parameter(Mandatory=$true,
+                   ValueFromPipelineByPropertyName=$true,
+                   Position=1)]
+        $Volume,
+        
+        # Param2 help description
+        [switch]
+        $Force
+    )
+
+    Begin
+    {
+        if(-not $Script:NSUnit)
+        {
+            Write-Error "Connect to unit first!" -ErrorAction Stop
+        }
+        
+        if($Volume.gettype().name -eq "vol"){$Volume=$Volume.name}
+        if($Force){$ConfirmPreference= 'None'}
+    }
+    Process
+    {
+        if($PSCmdlet.ShouldProcess($name,"Delete Snapshot from $volume"))
+        {
+            $rtncode = $Script:nsunit.deleteSnap($sid.value,$volume,$name)
+            if($rtncode -ne "SMok")
+            {
+                write-error "Delete failed! Code: $rtncode"
+            }
+        }
+    }
+    End
+    {
+    }
+}
