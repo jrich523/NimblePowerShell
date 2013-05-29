@@ -194,7 +194,6 @@ function New-NSVolume
     {
     }
 }
-
 <#
 .Synopsis
    Short description
@@ -288,17 +287,29 @@ function Remove-NSVolume
     Process
     {
         
+        $vol = Get-NSVolume $name
+        $conns = $vol.numconnections
         ## delete snaps
             ##todo: impliment snap delete logic
             ## it WILL delete when there are snaps
         ## take offline
-        if(Get-NSVolume $name |select -exp online)
+        if($conns -gt 0)
+        {
+            if(-not $PSCmdlet.ShouldProcess("Connected Sessions","There are $conns open still, terminate?","Connected Hosts"))
+            {
+                break
+            }
+        }
+        if($vol.online)
         {
             if($PSCmdlet.ShouldProcess($name,"Take volume offline"))
             {
                 Set-NSVolumeState -Volume $name -Offline
             }
-
+            else
+            {
+                break
+            }
         }
 
         ##delete
