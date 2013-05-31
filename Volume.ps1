@@ -120,34 +120,8 @@ function New-NSVolume
 
     )
     DynamicParam {
-    $SMA = 'System.Management.Automation'
-    $Type = 'Collections.ObjectModel.Collection[System.Attribute]'
-    $paramName = 'PerformancePolicy'
-
-    $AttributeMandatory = New-Object "$SMA.ParameterAttribute" -Property @{
-        ParameterSetName = "__AllParameterSets"
-        Position = 3
-        Mandatory = $true
+        New-DynamicParam -Name PerformancePolicy -Options (Get-NSPerfPolicy | select -ExpandProperty name) -Manditory -Position 3
     }
-
-    $paramoptions = Get-NSPerfPolicy | select -exp name
-
-    $AttributeValidate = New-Object "$SMA.ValidateSetAttribute" -ArgumentList $paramoptions
-
-    $AttributeCollection = New-Object $Type 
-    $AttributeCollection.Add($AttributeMandatory)
-    $AttributeCollection.Add($AttributeValidate)
-
-    $Param = @{
-    TypeName = "$SMA.RuntimeDefinedParameter"
-    ArgumentList = @($paramName, [string], $AttributeCollection)
-    }
-    $Parameter = New-Object @Param
-            
-    $Dictionary = New-Object "$SMA.RuntimeDefinedParameterDictionary"
-    $Dictionary.Add($paramName, $Parameter)
-    $Dictionary
-}
     Begin
     {
         $attr = New-Object VolCreateAttr
