@@ -1,5 +1,6 @@
 
 
+. $psScriptRoot\Utility.ps1
 . $psScriptRoot\Login.ps1
 . $psScriptRoot\Volume.ps1
 . $psScriptRoot\array.ps1
