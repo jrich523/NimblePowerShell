@@ -91,7 +91,7 @@ function Add-NSInitiatorToGroup
         {
             $i = New-Object initiator
             $i.name = $init
-            $rtncode = $Script:NSUnit.addInitiatort($sid.Value,$InitiatorGroup, $i)
+            $rtncode = $Script:NSUnit.addInitiator($sid.Value,$InitiatorGroup, $i)
             if($rtncode -ne "Smok")
             {
                 Write-Error "Error adding $init to the list! code: $rtncode"

@@ -156,6 +156,7 @@ function New-NSVolume
     Process
     {
         $attr.name = $Name
+        $str=""
         $rtncode = $script:nsunit.createVol($script:sid.Value,$attr,[ref]$str)
         if($rtncode -ne "Smok")
         {
