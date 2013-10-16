@@ -15,11 +15,13 @@ function Get-NSSnapShot
     Param
     (
         # Param1 help description
-        [Parameter(ValueFromPipeline=$true,
+        [Parameter(manditory=$true,ValueFromPipeline=$true,
                    Position=0)]
         #TODO: wont handle array of names
         #Takes either a vol or string
-        $Volume
+        $Volume,
+        [string]
+        $SnapName
     )
 
     Begin

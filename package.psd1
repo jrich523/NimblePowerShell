@@ -1,5 +1,5 @@
 ﻿@{
-   ModuleName     = "VisioAutomation"
+   ModuleName     = "Nimble Storage Module"
    ModuleVersion  = '1.0'
 
    HomePageUri="https://github.com/jrich523/NimblePowerShell"
