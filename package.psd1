@@ -1,9 +1,12 @@
 ﻿@{
-   ModuleName     = "Nimble Storage Module"
+   ModuleName     = "Nimble"
    ModuleVersion  = '1.0'
+   Author = 'Justin Rich'
+   Description = 'PowerShell Nimble Storage Module'
+   AuthorEmail = 'jrich523@gmail.com'
 
-   HomePageUri="https://github.com/jrich523/NimblePowerShell"
+   ModuleInfoUri="https://github.com/jrich523/NimblePowerShell"
    LicenseUri="http://opensource.org/licenses/ms-pl"
-   ModuleInfoUri="https://raw.github.com/jrich523/NimblePowerShell/master/Nimble.psd1"
-   PackageUri="https://github.com/jrich523/NimblePowerShell/raw/master/Nimble-1.0.psmx"
+   PackageManifestUri="https://raw.github.com/jrich523/NimblePowerShell/master/Nimble.psd1"
+   DownloadUri="https://github.com/jrich523/NimblePowerShell/raw/master/Nimble-1.0.psmx"
 }
