@@ -1,12 +1,12 @@
 <#
 .Synopsis
-   Short description
+   Gets all performance policies on the unit.
 .DESCRIPTION
-   Long description
+   Queries the unit for all configured performance policies
 .EXAMPLE
-   Example of how to use this cmdlet
+   Get-NSPerfPolicy
 .EXAMPLE
-   Another example of how to use this cmdlet
+   Get-NSPerfPolicy -name "VMware ESX 5"
 #>
 function Get-NSPerfPolicy
 {
@@ -48,4 +48,60 @@ function Get-NSPerfPolicy
     {
         $rtnpol
     }
+}
+
+<#
+.Synopsis
+   Create a new performance policy.
+.DESCRIPTION
+   Defines a new performance policy to be created.
+.EXAMPLE
+   
+.EXAMPLE
+   
+#>
+function New-NSPerfPolicy
+{
+    [CmdletBinding()]
+    Param
+    (
+        # Param1 help description
+        [Parameter(Mandatory=$true,
+                   Position=0)]
+        [string]
+        $Name,
+
+        # Param2 help description
+        [string]
+        $Description,
+        
+        [Parameter(Mandatory=$true,
+                   Position=0)]
+        [int]
+        $BlockSize,
+
+        [switch]
+        $Compress,
+
+        [switch]
+        $Cache
+
+    )
+    #no pipping so no need for begin/process/end blocks
+    $attr = new-object PerfPolCreateAttr
+    $attr.name = $Name
+    $attr.description = $Description
+    $attr.blocksize = $BlockSize
+    
+    if($Compress){$attr.compress=$true}
+    if($Cache){$attr.cache=$true}
+
+    $str=""
+    $rtncode = $script:nsunit.createPerfPol($script:sid.Value,$attr)
+    if($rtncode -ne "Smok")
+    {
+        Write-Error "Error Creating performance policy '$Name'! code: $rtncode"
+    }
+    Get-NSPerfPolicy $Name
+
 }

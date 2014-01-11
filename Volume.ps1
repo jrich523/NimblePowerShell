@@ -1,6 +1,6 @@
 <#
 .Synopsis
-   Short description
+   List all volumes
 .DESCRIPTION
    Long description
 .EXAMPLE
@@ -46,25 +46,30 @@ function Get-NSVolume
     }
     End
     {
+        $rtnvols | Add-Member -MemberType AliasProperty -Name MultiInit -Value MultiInitiator
+        $rtnvols | Add-Member -MemberType AliasProperty -Name PerfPolicy -Value perfpolname
+        $rtnvols | Add-Member -MemberType AliasProperty -Name Compressed -Value volusagecompressed
+        $rtnvols | Add-Member -MemberType AliasProperty -Name Uncompressed -Value volusageuncompressed
+        $rtnvols | Add-Member -MemberType AliasProperty -Name Connections -Value numConnections
         $rtnvols
     }
 }
 <#
 .Synopsis
-   Short description
+   Creates a new volume.
 .DESCRIPTION
-   Long description
+   Creates a new volume allowing you to set all aspects of the volume properties but does not handle security.
 .EXAMPLE
-   Example of how to use this cmdlet
+   New-NSVolume -Name TestVolume -Size 2tb
 .EXAMPLE
-   Another example of how to use this cmdlet
+  New-NSVolume -Name ESXVolume01 -Size 2tb -MultipleInitiator -Description "ESX datastore"
 #>
 function New-NSVolume
 {
     [CmdletBinding()]
     Param
     (
-        # can only contain letters,numbers,dash,dot - write regex
+        # The name can only contain letters,numbers,dash,dot.
         [Parameter(Mandatory=$true,
                    ValueFromPipelineByPropertyName=$true,
                    ValueFromPipeline=$true,
@@ -73,47 +78,47 @@ function New-NSVolume
         [string]
         $Name,
 
-        # Param2 help description
+        # Set the size of the volume, PowerShell unit notation can be used, for example 2tb
         [Parameter(Mandatory=$true,
                    ValueFromPipelineByPropertyName=$true,
                    Position=2)]
         
         $Size,
 
-        #desc
+        # Set the volume description
         [string]
         $Description,
 
-        #more
+        # Enables Multiple Initiators (VM or Cluster use)
         [switch]
         $MultipleInitiator,
         
-        #details
+        # Reserved space for the volume.
         [ValidateRange(0,100)]
         [int]
         $VolumeReserve=0,
 
-        #details
+        # Volume Quota
         [ValidateRange(0,100)]
         [int]
-        $VolumeQuote=100,
+        $VolumeQuota=100,
 
-        #details
+        # Volume warning percent, default is 80%
         [ValidateRange(0,100)]
         [int]
         $VolumeWarning=80,
 
-        #details
+        # Reserve for snapshot
         [ValidateRange(0,100)]
         [int]
         $SnapShotReserve=0,
 
-        #details - -1 means unlimited
+        # SnapShot quota, a value of -1 means unlimited, which is the default.
         [ValidateRange(-1,100)]
         [int]
-        $SnapShotQuote=-1,
+        $SnapShotQuota=-1,
 
-        #details
+        # SnapShot warning percent
         [ValidateRange(0,100)]
         [int]
         $SnapShotWarning=0
@@ -128,16 +133,16 @@ function New-NSVolume
         $attr.size = $Size
         #vol prop
         $attr.warnlevel = $Size * ($VolumeWarning /100)
-        $attr.quota = $Size * ($VolumeQuote/100)
+        $attr.quota = $Size * ($VolumeQuota/100)
         $attr.reserve = $Size * ($VolumeReserve/100)
         #snap prop
-        if($SnapShotQuote -eq -1)
+        if($SnapShotQuota -eq -1)
         {
             $attr.snapquota = 9223372036854775807  ##unlimited
         }
         else
         {
-            $attr.snapquota = $size * ($SnapShotQuote /100)
+            $attr.snapquota = $size * ($SnapShotQuota /100)
         }
         $attr.snapreserve = $Size * ($SnapShotReserve/100)
         $attr.snapwarnlevel = $size * ($SnapShotWarning/100)
@@ -171,29 +176,30 @@ function New-NSVolume
 }
 <#
 .Synopsis
-   Short description
+   Change the Volume State.
 .DESCRIPTION
-   Long description
+   Allows you to set the volumes state to online or offline.
 .EXAMPLE
-   Example of how to use this cmdlet
+   Set-NSVolumeState $myvol -offline
 .EXAMPLE
-   Another example of how to use this cmdlet
+   Set-NSVolumeState volName -online
 #>
 function Set-NSVolumeState
 {
     [CmdletBinding()]
     Param
     (
-        # Param1 help description
+        # Volume to set.
         [Parameter(Mandatory=$true,
                    ValueFromPipeline=$true,
                    Position=0)]
         $Volume,
 
-        # Param2 help description
+        # Set volume online.
         [parameter(mandatory=$true,parametersetname='on')]
         [switch]
         $Online,
+        # Set volume Offline.
         [parameter(mandatory=$true,parametersetname='off')]
         [switch]
         $Offline
@@ -224,9 +230,9 @@ function Set-NSVolumeState
 
 <#
 .Synopsis
-   Short description
+   Deletes a volume. This cmdlet will have additional error checking. Please use caution when using it.
 .DESCRIPTION
-   Long description
+   This will remove a volume from the unit
 .EXAMPLE
    Example of how to use this cmdlet
 .EXAMPLE

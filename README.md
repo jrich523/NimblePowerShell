@@ -1,25 +1,36 @@
 NimblePowerShell
 ================
 
-Nimble PowerShell Module
+PowerShell Module for Nimble Storage
 
+[http://www.nimblestorage.com](http://www.nimblestorage.com "Nimble Storage")
 
+Community Thread
+
+[https://connect.nimblestorage.com/thread/1277](https://connect.nimblestorage.com/thread/1277 "Community Thread")
+
+# Install #
 Copy all files to the module profile (use the download zip button)
 
+1. Download ZIP and Unblock file.
+2. Extra files to
+	**\Documents\WindowsPowerShell\Modules\Nimble**
+3. Load PowerShell and Import-Module Nimble
 
-\Documents\WindowsPowerShell\Modules\Nimble
-
-you must have it in a folder called Nimble for it to load correctly.
-
-will work towards making this easier.
-
-
-This is a community supported module!
-
-Examples:
-
-connect-nsarray -name 10.20.30.40 -password <clear text for now>
-get-nsvolume
+I am working towards an easier install method.
 
 
-still very early stage so help and functionality is spotty. 
+#Examples#
+
+    Connect-NSArray -name 10.20.30.40 -password <clear text for now>
+    Get-NSVolume
+	New-NSVolume -name myvol -size 2tb
+
+
+
+This module is still a work in progress but basic functionality is available and most tasks should be doable.
+
+Please let me know if any features are needed.
+
+Thanks
+Justin 

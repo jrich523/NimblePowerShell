@@ -1,12 +1,12 @@
 <#
 .Synopsis
-   Short description
+   Connects to Nimble Storge Device
 .DESCRIPTION
-   Long description
+   This initializeds the connection in to the storage unit. 
+   Currently there is no hiding of the password, this will be implimented in future versions
 .EXAMPLE
-   Example of how to use this cmdlet
-.EXAMPLE
-   Another example of how to use this cmdlet
+   Connect-NSArray -SystemName 192.168.15.23 -password theunitpassword
+
 #>
 function Connect-NSArray
 {
@@ -22,6 +22,9 @@ function Connect-NSArray
         # Param2 help description
         [string]
         $UserName="admin",
+        [Parameter(Mandatory=$true,
+                   ValueFromPipelineByPropertyName=$true,
+                   Position=1)]
         [string]
         $Password
     )
