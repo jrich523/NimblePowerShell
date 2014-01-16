@@ -11,51 +11,62 @@
 function Get-NSSnapShot
 {
     [CmdletBinding()]
-    [OutputType([int])]
     Param
     (
         # Param1 help description
-        [Parameter(manditory=$true,ValueFromPipeline=$true,
+        [Parameter(ValueFromPipeline=$true,
                    Position=0)]
         #TODO: wont handle array of names
         #Takes either a vol or string
         $Volume,
         [string]
-        $SnapName
+        $SnapName = "*"
     )
 
     Begin
     {
-        $rtnsnaps = @()
-        if($Volume.gettype().name -eq "vol"){$Volume=$Volume.name}
+        
         if(-not $Script:NSUnit)
         {
             Write-Error "Connect to unit first!" -ErrorAction Stop
         }
-        $snaps = New-Object snap
-        $rtncode = $Script:NSUnit.getSnapList($sid.Value, $Volume, [ref]$snaps)
-        if($rtncode -ne "Smok")
-        {
-            Write-Error "Error getting volume list! code: $rtncode" -ErrorAction Stop
-        }
+        
     }
     Process
     {
-        #filter handles by soap call
+        
+        if($Volume)
+        {
+            if($Volume.gettype().name -ne "vol"){$Volume=Get-NSVolume -Name $Volume}
+            $snaps = New-Object snap
+            $rtncode = $Script:NSUnit.getSnapList($sid.Value, $Volume.Name, [ref]$snaps)
+            if($rtncode -ne "Smok")
+            {
+                Write-Error "Error getting volume list! code: $rtncode" -ErrorAction Stop
+            }
+            else
+            {
+                $snaps | ?{$_.name -like $SnapName}
+            }
+        }
+        else
+        {
+            
+            Get-NSVolume | Get-NSSnapShot -SnapName $SnapName
+        }
     }
     End
     {
-        $snaps
     }
 }
 
 <#
 .Synopsis
-   Short description
+   Creates a new snapshot
 .DESCRIPTION
-   Long description
+   Takes a new snapshot of a specified volume, allowing you to control if its writeable and if its online or not.
 .EXAMPLE
-   Example of how to use this cmdlet
+   Get-NSVolume -name testvol | New-NSSnapshot -name Test1
 .EXAMPLE
    Another example of how to use this cmdlet
 #>
@@ -64,13 +75,16 @@ function New-NSSnapshot
     [CmdletBinding()]
     Param
     (
-        # Param1 help description
-        [Parameter(Mandatory=$true,
-                   ValueFromPipelineByPropertyName=$true,
-                   Position=0)]
-        #new name for snapshot
+        # New name for snapshot
+        [Parameter(Mandatory=$true,ValueFromPipeLine=$true,ParameterSetName="inobj")]
+        [vol]
+        $InputObject,
+        [Parameter(Mandatory=$true,Position=0)]
+        [string]
         $Name,
-        #volume you'd like to snap
+        # Volume you'd like to take a snapshot of
+        [Parameter(Mandatory=$true,Position=1,ParameterSetName="string")]
+        [string]
         $Volume,
         $Description,
         [switch]
@@ -81,10 +95,22 @@ function New-NSSnapshot
 
     Begin
     {
-        if($Volume.gettype().name -eq "vol"){$Volume=$Volume.name}
+        
         if(-not $Script:NSUnit)
         {
             Write-Error "Connect to unit first!" -ErrorAction Stop
+        }
+    }
+    Process
+    {
+        if($InputObject)
+        {
+            $Volume = $InputObject.name
+        }
+        else
+        {
+            #bypass CASE issues
+            $Volume = Get-NSVolume | ?{$_.name -eq $Volume} | select -ExpandProperty Name
         }
         ##set prop
         $snapattr = New-Object snapcreateattr
@@ -98,11 +124,12 @@ function New-NSSnapshot
         
         if($rtncode -ne "Smok")
         {
-            Write-Error "Error getting volume list! code: $rtncode" -ErrorAction Stop
+            Write-Error "Error creating snapshot! code: $rtncode" -ErrorAction Stop
         }
-    }
-    Process
-    {
+        else
+        {
+            Get-NSSnapShot -Volume $Volume -SnapName $Name
+        }
     }
     End
     {
@@ -130,6 +157,7 @@ function Remove-NSSnapShot
                    ValueFromPipeline=$true,
                    ValueFromPipelineByPropertyName=$true,
                    Position=0)]
+        [string]
         $Name,
 
         #
@@ -149,12 +177,11 @@ function Remove-NSSnapShot
         {
             Write-Error "Connect to unit first!" -ErrorAction Stop
         }
-        
-        if($Volume.gettype().name -eq "vol"){$Volume=$Volume.name}
         if($Force){$ConfirmPreference= 'None'}
     }
     Process
     {
+        if($Volume.gettype().name -eq "vol"){$Volume=$Volume.name}
         if($PSCmdlet.ShouldProcess($name,"Delete Snapshot from $volume"))
         {
             $rtncode = $Script:nsunit.deleteSnap($sid.value,$volume,$name)
@@ -184,6 +211,13 @@ function New-NSClone
     [CmdletBinding()]
     Param
     (
+        # Snapshot object to make a clone of
+        [Parameter(Mandatory=$true,
+                   ValueFromPipeLine=$true,
+                   ParameterSetName="inobj")]
+        [snap]
+        $InputObject,
+        
         # can only contain letters,numbers,dash,dot - write regex
         [Parameter(Mandatory=$true,
                    ValueFromPipelineByPropertyName=$true,
@@ -196,94 +230,79 @@ function New-NSClone
         # Param2 help description
         [Parameter(Mandatory=$true,
                    ValueFromPipelineByPropertyName=$true,
-                   Position=2)]
+                   Position=2,
+                   ParameterSetName="string")]
         
-        $Size,
-
-        #desc
         [string]
-        $Description,
-
-        #more
-        [switch]
-        $MultipleInitiator,
-        
-        #details
-        [ValidateRange(0,100)]
-        [int]
-        $VolumeReserve=0,
-
-        #details
-        [ValidateRange(0,100)]
-        [int]
-        $VolumeQuote=100,
-
-        #details
-        [ValidateRange(0,100)]
-        [int]
-        $VolumeWarning=80,
-
-        #details
-        [ValidateRange(0,100)]
-        [int]
-        $SnapShotReserve=0,
-
-        #details - -1 means unlimited
-        [ValidateRange(-1,100)]
-        [int]
-        $SnapShotQuote=-1,
-
-        #details
-        [ValidateRange(0,100)]
-        [int]
-        $SnapShotWarning=0
+        $Snap,
+        [Parameter(Mandatory=$true,
+                   ValueFromPipelineByPropertyName=$true,
+                   Position=3,
+                   ParameterSetName="string")]
+        [string]
+        $Volume
 
     )
-    DynamicParam {
-
-        New-DynamicParam -Name PerformancePolicy -Options (Get-NSPerfPolicy | select -ExpandProperty name) -Manditory -Position 3
-    }
     Begin
-    {
-        $attr = New-Object VolCreateAttr
-        $attr.size = $Size
-        #vol prop
-        $attr.warnlevel = $Size * ($VolumeWarning /100)
-        $attr.quota = $Size * ($VolumeQuote/100)
-        $attr.reserve = $Size * ($VolumeReserve/100)
-        #snap prop
-        if($SnapShotQuote -eq -1)
+    {  
+        if(-not $Script:NSUnit)
         {
-            $attr.snapquota = 9223372036854775807  ##unlimited
+            Write-Error "Connect to unit first!" -ErrorAction Stop
         }
-        else
-        {
-            $attr.snapquota = $size * ($SnapShotQuote /100)
-        }
-        $attr.snapreserve = $Size * ($SnapShotReserve/100)
-        $attr.snapwarnlevel = $size * ($SnapShotWarning/100)
-        #gen prop
-        $attr.description = $Description
-        $attr.online = $true
-        $attr.perfpolname = $PSBoundParameters.PerformancePolicy
-        
-        if($MultipleInitiator)
-        {
-            $attr.multiinitiator = $true
-        }
-        
-
     }
     Process
     {
-        $attr.name = $Name
-        $rtncode = $script:nsunit.createVol($script:sid.Value,$attr,[ref]$str)
-        if($rtncode -ne "Smok")
+        
+        if(Get-NSVolume -Name $name)
         {
-            Write-Error "Error Creating volume $Name! code: $rtncode"
+            Write-Error "Name ($name) already in use!"
         }
-        Get-NSVolume $Name
-
+        else
+        {
+            if($InputObject)
+            {
+                Write-Debug "snap passed in"
+                $Snap = $InputObject.name
+                $volume = $InputObject.volume
+            }
+            else
+            {
+                #avoid any case issues
+                Write-Debug "Using strnig names"
+                $tempSnap = Get-NSSnapShot -Volume $Volume -SnapName $Name
+                $snap = $tempSnap.name
+                $volume = $tempSnap.volume
+            }
+            $volobj = Get-NSVolume -Name $Volume
+            Write-Debug "using snap: $Snap"
+            Write-Debug "using volume: $volume"
+            
+            $attr = new-object VolCreateAttr
+            $attr.name = $Name
+            $attr.size = $volobj.Size
+            #vol prop
+            $attr.warnlevel = $volobj.warnlevel
+            $attr.quota = $volobj.quota
+            $attr.reserve = $volobj.reserve
+            #snap prop
+            $attr.snapquota =$volobj.snapquota
+            $attr.snapreserve = $volobj.snapreserve
+            $attr.snapwarnlevel = $volobj.snapwarnlevel
+            #gen prop
+            
+            $attr.online = $true
+            $attr.perfpolname = $volobj.perfpolname
+        
+            $attr.multiinitiator = $volobj.multiinitiator
+            
+            
+            $rtncode = $script:nsunit.CloneVol($script:sid.Value,$Volume,$Snap,$attr)
+            if($rtncode -ne "Smok")
+            {
+                Write-Error "Error Creating volume $Name! code: $rtncode"
+            }
+            Get-NSVolume $Name
+        }
     }
     End
     {
