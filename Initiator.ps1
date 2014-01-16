@@ -1,12 +1,12 @@
 <#
 .Synopsis
-   Short description
+   Get Initiator Groups
 .DESCRIPTION
-   Long description
+   Returns all Initiator Groups registered on the unit
 .EXAMPLE
-   Example of how to use this cmdlet
+   Get-NSInitiatorGroup
 .EXAMPLE
-   Another example of how to use this cmdlet
+   Get-NSInitiatorGroup -Name ESXStorage
 #>
 function Get-NSInitiatorGroup
 {
@@ -15,7 +15,7 @@ function Get-NSInitiatorGroup
     (
         # Param1 help description
         [Parameter(ValueFromPipeline=$true,Position=0)]
-        $Name
+        $Name = "*"
     )
 
     Begin
@@ -29,36 +29,25 @@ function Get-NSInitiatorGroup
         $rtncode = $Script:NSUnit.getinitiatorgrpList($sid.Value, [ref]$igrp)
         if($rtncode -ne "Smok")
         {
-            Write-Error "Error getting volume list! code: $rtncode" -ErrorAction Stop
+            Write-Error "Error getting initiator list! code: $rtncode" -ErrorAction Stop
         }
             
     }
     Process
     {
-        
-        ##todo:
-        ##process date
-        #[TimeZone]::CurrentTimeZone.ToLocalTime(([datetime]'1/1/1970').AddSeconds($igrp.creationtime))
-        if($name)
-        {
-            $rtnigrp += $igrp | where {$_.name -like $name}
-        }
-        else
-        {
-            $rtnigrp = $igrp
-        }
+        $igrp | where {$_.name -like $name}
     }
     End
     {
-        $rtnigrp
+
     }
 }
 
 <#
 .Synopsis
-   Short description
+   Add an Initiator to a group
 .DESCRIPTION
-   Long description
+   This will add an initiator to a group allowing it access.
 .EXAMPLE
    Example of how to use this cmdlet
 .EXAMPLE
@@ -71,7 +60,10 @@ function Add-NSInitiatorToGroup
     (
         # Param1 help description
         [Parameter(ValueFromPipeline=$true,Position=0)]
+        [string]
         $Name,
+        # Assign an IP restriction to the group
+        $ip,
         # group name
         [Parameter(ValueFromPipelineByPropertyName=$true,Position=1)]
         $InitiatorGroup
@@ -91,6 +83,7 @@ function Add-NSInitiatorToGroup
         {
             $i = New-Object initiator
             $i.name = $init
+            $i.ip = $ip
             $rtncode = $Script:NSUnit.addInitiator($sid.Value,$InitiatorGroup, $i)
             if($rtncode -ne "Smok")
             {
@@ -201,7 +194,7 @@ function New-NSInitiatorGroup
                 Write-Error "Error creating $gname initiator group! code: $rtncode"
             }
         }
-        Get-NSInitiatorGroup $gname
+        Get-InitiatorGroup $gname
     }
     End
     {
@@ -236,7 +229,7 @@ function Remove-NSInitiatorGroup
             Write-Error "Connect to unit first!" -ErrorAction Stop
         }
         if($Force){$ConfirmPreference= 'None'}
-        $volumes = Get-NSVolume
+        $volumes = Get-Volume
         $RejectAll = $false;
         $ConfirmAll = $false;
     }
@@ -300,8 +293,7 @@ function Add-NSInitiatorGroupToVolume
         {
             Write-Error "Connect to unit first!" -ErrorAction Stop
         }
-
-            
+         
     }
     Process
     {
