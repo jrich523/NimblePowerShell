@@ -15,10 +15,11 @@ function Get-NSInitiatorGroup
     (
         
         # Param1 help description
-        [Parameter(Mandatory=$true,ValueFromPipeline=$true,Position=0,ParameterSetName="string")]
+        [Parameter(ValueFromPipeline=$true,Position=0,ParameterSetName="string")]
+        [string]
         $Name = "*",
-        [Parameter(Mandatory=$true,ValueFromPipeline=$true,Position=0,ParameterSetName="InputObject")]
-        [vol]
+        [Parameter(ValueFromPipeline=$true,Position=0,ParameterSetName="InputObject")]
+        [VolAclRec]
         $InputObject
     )
 
@@ -39,6 +40,7 @@ function Get-NSInitiatorGroup
     }
     Process
     {
+        if($InputObject){$name = $InputObject.initiatorgrp}
         $igrp | where {$_.name -like $name}
     }
     End
