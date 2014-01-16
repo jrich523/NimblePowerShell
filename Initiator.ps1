@@ -10,7 +10,7 @@
 #>
 function Get-NSInitiatorGroup
 {
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName='string')]
     Param
     (
         
