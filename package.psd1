@@ -1,6 +1,6 @@
 ﻿@{
    ModuleName     = "Nimble"
-   ModuleVersion  = '1.0'
+   ModuleVersion  = '1.1'
    Author = 'Justin Rich'
    Description = 'PowerShell Nimble Storage Module'
    AuthorEmail = 'jrich523@gmail.com'
