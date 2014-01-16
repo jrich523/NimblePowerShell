@@ -211,13 +211,6 @@ function New-NSClone
     [CmdletBinding()]
     Param
     (
-        # Snapshot object to make a clone of
-        [Parameter(Mandatory=$true,
-                   ValueFromPipeLine=$true,
-                   ParameterSetName="inobj")]
-        [snap]
-        $InputObject,
-        
         # can only contain letters,numbers,dash,dot - write regex
         [Parameter(Mandatory=$true,
                    ValueFromPipelineByPropertyName=$true,
@@ -240,7 +233,13 @@ function New-NSClone
                    Position=3,
                    ParameterSetName="string")]
         [string]
-        $Volume
+        $Volume,
+        # Snapshot object to make a clone of
+        [Parameter(Mandatory=$true,
+                   ValueFromPipeLine=$true,
+                   ParameterSetName="inobj")]
+        [snap]
+        $InputObject
 
     )
     Begin

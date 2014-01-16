@@ -13,9 +13,13 @@ function Get-NSInitiatorGroup
     [CmdletBinding()]
     Param
     (
+        
         # Param1 help description
-        [Parameter(ValueFromPipeline=$true,Position=0)]
-        $Name = "*"
+        [Parameter(Mandatory=$true,ValueFromPipeline=$true,Position=0,ParameterSetName="string")]
+        $Name = "*",
+        [Parameter(Mandatory=$true,ValueFromPipeline=$true,Position=0,ParameterSetName="InputObject")]
+        [vol]
+        $InputObject
     )
 
     Begin
@@ -81,6 +85,7 @@ function Add-NSInitiatorToGroup
     {
         foreach($init in $Name)
         {
+            $InitiatorGroup = Get-NSInitiatorGroup $InitiatorGroup | select -ExpandProperty name
             $i = New-Object initiator
             $i.name = $init
             $i.ip = $ip
@@ -298,8 +303,8 @@ function Add-NSInitiatorGroupToVolume
     Process
     {
         #if object given, get names
-        if($Volume.gettype().name -eq "vol"){$Volume=$Volume.name}
-        if($InitiatorGroup.gettype().name -eq "initiatorgrp"){$InitiatorGroup=$InitiatorGroup.name}
+        if($Volume.gettype().name -eq "vol"){$Volume=$Volume.name}else{$Volume = Get-NSVolume $Volume | select -ExpandProperty name}
+        if($InitiatorGroup.gettype().name -eq "initiatorgrp"){$InitiatorGroup=$InitiatorGroup.name}else{$InitiatorGroup = Get-NSInitiatorGroup $InitiatorGroup | select -ExpandProperty name}
         
         $applyto = switch($Access){
                     "Both"{[smvolaclapply]::SMvolaclapplytoboth}

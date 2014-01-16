@@ -180,17 +180,25 @@ function Set-NSVolumeState
         # Volume to set.
         [Parameter(Mandatory=$true,
                    ValueFromPipeline=$true,
-                   Position=0)]
+                   Position=0,ParameterSetName="volume")]
+        [string]
         $Volume,
 
         # Set volume online.
         [parameter(mandatory=$true,parametersetname='on')]
+        [parameter(parametersetname='volume')]
+        [parameter(parametersetname='inputobject')]
         [switch]
         $Online,
         # Set volume Offline.
         [parameter(mandatory=$true,parametersetname='off')]
+        [parameter(parametersetname='volume')]
+        [parameter(parametersetname='inputobject')]
         [switch]
-        $Offline
+        $Offline,
+        [parameter(mandatory=$true,valuefrompipeline=$true,parametersetname="inputobject",Position=0)]
+        [vol]
+        $InputObject
     )
 
     Begin
@@ -199,17 +207,17 @@ function Set-NSVolumeState
         {
             Write-Error "Connect to unit first!" -ErrorAction Stop
         }
-        
-        if($Volume.gettype().name -eq "vol"){$Volume=$Volume.name}
+    }
+    Process
+    {
+        if($Volume){$volume = Get-NSVolume $Volume|select -ExpandProperty name}
+        if($InputObject){$Volume = $InputObject.name}
         $on = if($Online){$true}else{$false}
         $rtncode = $Script:NSUnit.onlineVol($sid.Value, $volume,$On)
         if($rtncode -ne "Smok")
         {
             Write-Error "Error getting volume list! code: $rtncode" -ErrorAction Stop
         }
-    }
-    Process
-    {
     }
     End
     {
@@ -235,12 +243,20 @@ function Remove-NSVolume
         # Name of the volume you'd like to delete
         [Parameter(Mandatory=$true,
                    ValueFromPipeline=$true,
-                   Position=0)]
+                   Position=0,
+                   ParameterSetName="string")]
+        [string]
         $Name,
 
         # Param2 help description
         [switch]
-        $Force
+        $Force,
+        [Parameter(Mandatory=$true,
+                   ValueFromPipeline=$true,
+                   Position=0,
+                   ParameterSetName="inputobject")]
+        [vol]
+        $InputObject
     )
 
     Begin
@@ -256,7 +272,16 @@ function Remove-NSVolume
     Process
     {
         
-        $vol = Get-NSVolume $name
+        if($InputObject)
+        {
+            $vol = $InputObject.name
+        }
+        else
+        {
+
+            $vol = Get-NSVolume $name
+        }
+
         $conns = $vol.numconnections
         ## delete snaps
             ##todo: impliment snap delete logic
@@ -271,9 +296,9 @@ function Remove-NSVolume
         }
         if($vol.online)
         {
-            if($PSCmdlet.ShouldProcess($name,"Take volume offline"))
+            if($PSCmdlet.ShouldProcess($vol.name,"Take volume offline"))
             {
-                Set-NSVolumeState -Volume $name -Offline
+                Set-NSVolumeState -Volume $vol.name -Offline
             }
             else
             {
@@ -282,10 +307,10 @@ function Remove-NSVolume
         }
 
         ##delete
-        if($PSCmdlet.ShouldProcess($name,"Delete Volume"))
+        if($PSCmdlet.ShouldProcess($vol.name,"Delete Volume"))
         {
             #set offline
-            $rtncode = $Script:nsunit.deleteVol($sid.value,$name)
+            $rtncode = $Script:nsunit.deleteVol($sid.value,$vol.name)
             if($rtncode -ne "SMok")
             {
                 write-error "Delete failed! Code: $rtncode"
@@ -334,7 +359,8 @@ function Get-NSVolumeACL
     }
     Process
     {
-        throw "NotImplimented"
+        if($Volume){$InputObject = Get-NSVolume $Volume}
+        $InputObject.aclList
     }
     End
     {
