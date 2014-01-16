@@ -1,0 +1,133 @@
+<Types>
+  <Type>
+    <Name>vol</Name>
+    <Members>
+      <AliasProperty>
+        <Name>Unit</Name>
+        <ReferencedMemberName>ownername</ReferencedMemberName>
+      </AliasProperty>
+      <AliasProperty>
+        <Name>MultiInit</Name>
+        <ReferencedMemberName>MultiInitiator</ReferencedMemberName>
+      </AliasProperty>
+      <AliasProperty>
+        <Name>PerfPolicy</Name>
+        <ReferencedMemberName>perfpolname</ReferencedMemberName>
+      </AliasProperty>
+      <AliasProperty>
+        <Name>Compressed</Name>
+        <ReferencedMemberName>volusagecompressed</ReferencedMemberName>
+      </AliasProperty>
+      <AliasProperty>
+        <Name>Uncompressed</Name>
+        <ReferencedMemberName>volusageuncompressed</ReferencedMemberName>
+      </AliasProperty>
+      <AliasProperty>
+        <Name>Connections</Name>
+        <ReferencedMemberName>numConnections</ReferencedMemberName>
+      </AliasProperty>
+      <ScriptProperty>
+        <Name>Ratio</Name>
+        <GetScriptBlock>
+          [math]::round( ($this.volusageuncompressed / $this.volusagecompressed),2)
+        </GetScriptBlock>
+      </ScriptProperty>
+      <ScriptProperty>
+        <Name>LocalCreationTime</Name>
+        <GetScriptBlock>
+          (new-object DateTime 1970,1,1,0,0,0,([DateTimeKind]::Utc)).addseconds($this.creationtime)
+        </GetScriptBlock>
+      </ScriptProperty>
+      <ScriptProperty>
+        <Name>LocalLastModified</Name>
+        <GetScriptBlock>
+          (new-object DateTime 1970,1,1,0,0,0,([DateTimeKind]::Utc)).addseconds($this.lastmodified)
+        </GetScriptBlock>
+      </ScriptProperty>
+    </Members>
+  </Type>
+  <Type>
+    <Name>Snap</Name>
+    <Members>
+      <AliasProperty>
+        <Name>Unit</Name>
+        <ReferencedMemberName>ownername</ReferencedMemberName>
+      </AliasProperty>
+      <AliasProperty>
+        <Name>Volume</Name>
+        <ReferencedMemberName>vol</ReferencedMemberName>
+      </AliasProperty>
+      <AliasProperty>
+        <Name>NewCompressed</Name>
+        <ReferencedMemberName>newdatacompressed</ReferencedMemberName>
+      </AliasProperty>
+      <AliasProperty>
+        <Name>NewUncompressed</Name>
+        <ReferencedMemberName>newdatauncompressed</ReferencedMemberName>
+      </AliasProperty>
+      <ScriptProperty>
+      <Name>LocalCreationTime</Name>
+      <GetScriptBlock>
+        (new-object DateTime 1970,1,1,0,0,0,([DateTimeKind]::Utc)).addseconds($this.creationtime)
+      </GetScriptBlock>
+      </ScriptProperty>
+      <ScriptProperty>
+      <Name>LocalLastModified</Name>
+      <GetScriptBlock>
+        (new-object DateTime 1970,1,1,0,0,0,([DateTimeKind]::Utc)).addseconds($this.lastmodified)
+      </GetScriptBlock>
+      </ScriptProperty>
+      <ScriptProperty>
+      <Name>Ratio</Name>
+      <GetScriptBlock>
+        [math]::round( ($this.newdatauncompressed / $this.newdatacompressed),2)
+      </GetScriptBlock>
+      </ScriptProperty>
+    </Members>
+  </Type>
+  <Type>
+    <Name>InitiatorGrp</Name>
+    <Members>
+
+      <ScriptProperty>
+        <Name>LocalCreationTime</Name>
+        <GetScriptBlock>
+          (new-object DateTime 1970,1,1,0,0,0,([DateTimeKind]::Utc)).addseconds($this.creationtime)
+        </GetScriptBlock>
+      </ScriptProperty>
+      <ScriptProperty>
+        <Name>LocalLastModified</Name>
+        <GetScriptBlock>
+          (new-object DateTime 1970,1,1,0,0,0,([DateTimeKind]::Utc)).addseconds($this.lastmodified)
+        </GetScriptBlock>
+      </ScriptProperty>
+      <ScriptProperty>
+        <Name>Initiators</Name>
+        <GetScriptBlock>
+          $this.initiatorlist.count
+        </GetScriptBlock>
+      </ScriptProperty>
+    </Members>
+  </Type>
+  <Type>
+    <Name>Initiator</Name>
+    <Members>
+      <AliasProperty>
+        <Name>IPAddress</Name>
+        <ReferencedMemberName>ipaddr</ReferencedMemberName>
+      </AliasProperty>
+      <ScriptProperty>
+        <Name>LocalCreationTime</Name>
+        <GetScriptBlock>
+          (new-object DateTime 1970,1,1,0,0,0,([DateTimeKind]::Utc)).addseconds($this.creationtime)
+        </GetScriptBlock>
+      </ScriptProperty>
+      <ScriptProperty>
+        <Name>LocalLastModified</Name>
+        <GetScriptBlock>
+          (new-object DateTime 1970,1,1,0,0,0,([DateTimeKind]::Utc)).addseconds($this.lastmodified)
+        </GetScriptBlock>
+      </ScriptProperty>
+    </Members>
+  </Type>
+</Types>
