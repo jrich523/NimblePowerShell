@@ -30,6 +30,7 @@ function Get-NSArray
     }
     Process
     {
+        throw "NotImplimented"
     }
     End
     {
