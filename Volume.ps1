@@ -15,7 +15,7 @@ function Get-NSVolume
     (
         # Param1 help description
         [Parameter(ValueFromPipeline=$true,Position=0)]
-        $Name
+        $Name = "*"
     )
 
     Begin
@@ -35,23 +35,11 @@ function Get-NSVolume
     }
     Process
     {
-        if($name)
-        {
-            $rtnvols += $vols | where {$_.name -like $name}
-        }
-        else
-        {
-            $rtnvols = $vols
-        }
+        $vols | where {$_.name -like $name}
     }
     End
     {
-        $rtnvols | Add-Member -MemberType AliasProperty -Name MultiInit -Value MultiInitiator
-        $rtnvols | Add-Member -MemberType AliasProperty -Name PerfPolicy -Value perfpolname
-        $rtnvols | Add-Member -MemberType AliasProperty -Name Compressed -Value volusagecompressed
-        $rtnvols | Add-Member -MemberType AliasProperty -Name Uncompressed -Value volusageuncompressed
-        $rtnvols | Add-Member -MemberType AliasProperty -Name Connections -Value numConnections
-        $rtnvols
+        
     }
 }
 <#
@@ -303,6 +291,50 @@ function Remove-NSVolume
                 write-error "Delete failed! Code: $rtncode"
             }
         }
+    }
+    End
+    {
+    }
+}
+
+
+<#
+.Synopsis
+   Short description
+.DESCRIPTION
+   Long description
+.EXAMPLE
+   Example of how to use this cmdlet
+.EXAMPLE
+   Another example of how to use this cmdlet
+#>
+function Get-NSVolumeACL
+{
+    [CmdletBinding()]
+    Param
+    (
+        # Param1 help description
+        [Parameter(Mandatory=$true,
+                   ValueFromPipeline=$true,
+                   Position=0,
+                   ParameterSetName="InputObject")]
+        [vol]
+        $InputObject,
+
+        # Param2 help description
+        [string]
+        [Parameter(Mandatory=$true,
+                   Position=0,
+                   ParameterSetName="Volume")]
+        $Volume
+    )
+
+    Begin
+    {
+    }
+    Process
+    {
+        throw "NotImplimented"
     }
     End
     {
