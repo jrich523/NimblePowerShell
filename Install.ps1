@@ -23,6 +23,6 @@ if (!(Test-Path $InstallDirectory))
 $wc = New-Object System.Net.WebClient
 $wc.DownloadFile("https://raw.github.com/jrich523/NimblePowerShell/master/Nimble.psd1","$installDirectory\Nimble.psd1")
 Push-Location
-(Import-LocalizedData -FileName Nimble.psd1).filelist | %{$wc.DownloadFile("https://raw.github.com/jrich523/NimblePowerShell/master/$_","$installDirectory\$_")
+(Import-LocalizedData -FileName Nimble.psd1).filelist | %{$wc.DownloadFile("https://raw.github.com/jrich523/NimblePowerShell/master/$_","$installDirectory\$_")}
 gci | Unblock-File
 Pop-Location
