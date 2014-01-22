@@ -1,8 +1,8 @@
 <#
 .Synopsis
-   Short description
+   Generally this shouldnt be needed.
 .DESCRIPTION
-   Long description
+   This gives you access to the SOAP object so you can call methods directly. the SID is the auth token.
 .EXAMPLE
    Example of how to use this cmdlet
 .EXAMPLE
@@ -11,28 +11,10 @@
 function Get-NSArray
 {
     [CmdletBinding()]
-    [OutputType([int])]
-    Param
-    (
-        # Param1 help description
-        [Parameter(Mandatory=$true,
-                   ValueFromPipelineByPropertyName=$true,
-                   Position=0)]
-        $Param1,
+    Param()
+    new-object psobject -Property @{
+    Unit=$script:nsunit
+    SID=$script:sid
+    }
 
-        # Param2 help description
-        [int]
-        $Param2
-    )
-
-    Begin
-    {
-    }
-    Process
-    {
-        throw "NotImplimented"
-    }
-    End
-    {
-    }
 }

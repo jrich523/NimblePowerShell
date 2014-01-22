@@ -201,7 +201,7 @@ function New-NSInitiatorGroup
                 Write-Error "Error creating $gname initiator group! code: $rtncode"
             }
         }
-        Get-InitiatorGroup $gname
+        Get-NSInitiatorGroup $gname
     }
     End
     {
@@ -236,7 +236,7 @@ function Remove-NSInitiatorGroup
             Write-Error "Connect to unit first!" -ErrorAction Stop
         }
         if($Force){$ConfirmPreference= 'None'}
-        $volumes = Get-Volume
+        $volumes = Get-NSVolume
         $RejectAll = $false;
         $ConfirmAll = $false;
     }
@@ -244,6 +244,7 @@ function Remove-NSInitiatorGroup
     {
         foreach($gname in $Name)
         {
+            $gname = Get-NSInitiatorGroup $gname | select -exp name
             $InUseVols = ($volumes | ?{$_.acllist.initiatorgrp -eq $gname} | select -exp name) -join ", "
             if($InUseVols)
             {
