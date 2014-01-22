@@ -90,7 +90,7 @@ function Add-NSInitiatorToGroup
             $InitiatorGroup = Get-NSInitiatorGroup $InitiatorGroup | select -ExpandProperty name
             $i = New-Object initiator
             $i.name = $init
-            $i.ip = $ip
+            $i.ipaddress = $ip
             $rtncode = $Script:NSUnit.addInitiator($sid.Value,$InitiatorGroup, $i)
             if($rtncode -ne "Smok")
             {
