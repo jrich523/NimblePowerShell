@@ -25,7 +25,7 @@ $HelpMessage
     if($HelpMessage){$ParamAttr.HelpMessage = $HelpMessage}
 
     ##param validation set
-    $options = $Options | %{if($_ -match "\s"){"'$_'"}else{$_}}
+    #$options = $Options | %{if($_ -match "\s"){"'$_'"}else{$_}}
     $ParamOptions = New-Object System.Management.Automation.ValidateSetAttribute -ArgumentList $options
 
     $AttributeCollection = New-Object 'Collections.ObjectModel.Collection[System.Attribute]' 
