@@ -24,13 +24,14 @@ $HelpMessage
     if($ValueFromPipelineByPropertyName){$ParamAttr.ValueFromPipelineByPropertyName = $True}
     if($HelpMessage){$ParamAttr.HelpMessage = $HelpMessage}
 
-    ##param validation set
-    #$options = $Options | %{if($_ -match "\s"){"'$_'"}else{$_}}
-    $ParamOptions = New-Object System.Management.Automation.ValidateSetAttribute -ArgumentList $options
-
     $AttributeCollection = New-Object 'Collections.ObjectModel.Collection[System.Attribute]' 
     $AttributeCollection.Add($ParamAttr)
-    $AttributeCollection.Add($ParamOptions)
+
+    if($Options)
+    {
+        $ParamOptions = New-Object System.Management.Automation.ValidateSetAttribute -ArgumentList $options
+        $AttributeCollection.Add($ParamOptions)
+    }
 
     $Parameter = New-Object -TypeName System.Management.Automation.RuntimeDefinedParameter `
     -ArgumentList @($Name, [string], $AttributeCollection)
