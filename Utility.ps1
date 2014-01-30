@@ -1,11 +1,11 @@
-Function New-DynamicParam {
+function New-DynamicParam {
 param(
 [string]
 $Name,
 [string[]]
-$Options,
+$Options=$null,
 [switch]
-$Manditory,
+$Mandatory,
 [string]
 $SetName="__AllParameterSets",
 [int]
@@ -19,7 +19,7 @@ $HelpMessage
     #param attributes   
     $ParamAttr = New-Object System.Management.Automation.ParameterAttribute
     $ParamAttr.ParameterSetName = $SetName
-    if($Manditory){ $ParamAttr.Mandatory = $True }
+    if($Mandatory){ $ParamAttr.Mandatory = $True }
     if($Position -ne $null){$ParamAttr.Position=$Position}
     if($ValueFromPipelineByPropertyName){$ParamAttr.ValueFromPipelineByPropertyName = $True}
     if($HelpMessage){$ParamAttr.HelpMessage = $HelpMessage}
