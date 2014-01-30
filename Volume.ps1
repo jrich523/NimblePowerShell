@@ -113,7 +113,8 @@ function New-NSVolume
 
     )
     DynamicParam {
-        New-DynamicParam -Name PerformancePolicy -Options (Get-NSPerfPolicy | select -ExpandProperty name) -Manditory -Position 3
+        $options = Get-NSPerfPolicy -ErrorAction SilentlyContinue | select -ExpandProperty name
+        New-DynamicParam -Name PerformancePolicy -Options $options -Mandatory -Position 3
     }
     Begin
     {
