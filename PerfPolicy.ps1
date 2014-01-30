@@ -15,7 +15,7 @@ function Get-NSPerfPolicy
     (
         # Param1 help description
         [Parameter(ValueFromPipeline=$true,Position=0)]
-        $Name
+        $Name="*"
 
     )
 
@@ -24,29 +24,26 @@ function Get-NSPerfPolicy
         $rtnpol=@()
         if(-not $Script:NSUnit)
         {
-            Write-Error "Connect to unit first!" -ErrorAction Stop
+            $err=$true
+            Write-Error "Connect to unit first!"
+            return
         }
         $perfpoollist = new-object PerformancePolicy
         $rtncode = $script:nsunit.getperfpollist($script:sid.value,[ref]$perfpoollist)
         if($rtncode -ne "Smok")
         {
-            Write-Error "Error getting volume list! code: $rtncode" -ErrorAction Stop
+            Write-Error "Error getting volume list! code: $rtncode"
         }
     }
     Process
     {
-        if($name)
+        if(!$err)
         {
-            $rtnpol += $perfpoollist | where { $_.name -like $name}
-        }
-        else
-        {
-            $rtnpol = $perfpoollist
+            $perfpoollist | where { $_.name -and $_.name -like $name }
         }
     }
     End
     {
-        $rtnpol
     }
 }
 
