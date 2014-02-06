@@ -76,7 +76,7 @@ function New-NSPerfPolicy
         $Description,
         
         [Parameter(Mandatory=$true,
-                   Position=0)]
+                   Position=1)]
         [int]
         $BlockSize,
 
