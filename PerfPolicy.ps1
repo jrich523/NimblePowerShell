@@ -21,6 +21,7 @@ function Get-NSPerfPolicy
 
     Begin
     {
+        $err = $false
         $rtnpol=@()
         if(-not $Script:NSUnit)
         {
@@ -37,8 +38,10 @@ function Get-NSPerfPolicy
     }
     Process
     {
+        Write-Verbose "Processing Policies"
         if(!$err)
         {
+            Write-Verbose "Filter Volumes"
             $perfpoollist | where { $_.name -and $_.name -like $name }
         }
     }
