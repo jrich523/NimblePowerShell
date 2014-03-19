@@ -1,16 +1,17 @@
 <#
 .Synopsis
-   Short description
+   Returns all snapshots
 .DESCRIPTION
-   Long description
+   Gets a list of all snapshots on the system
 .EXAMPLE
-   Example of how to use this cmdlet
+   Get-NSSnapShot
 .EXAMPLE
-   Another example of how to use this cmdlet
+   Get-NSSnapshot
 #>
 function Get-NSSnapShot
 {
     [CmdletBinding()]
+    [OutputType([snap])]
     Param
     (
         # Param1 help description
@@ -19,6 +20,8 @@ function Get-NSSnapShot
         #TODO: wont handle array of names
         #Takes either a vol or string
         $Volume,
+        # Snap name you are looking for, wildcards are accepted.
+        [Parameter(Position=1)]
         [string]
         $SnapName = "*"
     )
@@ -73,19 +76,25 @@ function Get-NSSnapShot
 function New-NSSnapshot
 {
     [CmdletBinding()]
+    [OutputType([snap])]
     Param
     (
         # New name for snapshot
-        [Parameter(Mandatory=$true,ValueFromPipeLine=$true,ParameterSetName="inobj")]
-        [vol]
-        $InputObject,
         [Parameter(Mandatory=$true,Position=0)]
         [string]
         $Name,
+        # volume you'd like to take a snapshot of. This uses a Vol objecct, for pipeline use with other cmdlets
+        [Parameter(Mandatory=$true,Position=1,ValueFromPipeLine=$true,ParameterSetName="inobj")]
+        [vol]
+        $InputObject,
         # Volume you'd like to take a snapshot of
-        [Parameter(Mandatory=$true,Position=1,ParameterSetName="string")]
+        [Parameter(Mandatory=$true,Position=1,ParameterSetName="volume")]
         [string]
         $Volume,
+        # Volume collection you'd like to take a snapshot of.
+        [Parameter(Mandatory=$true,Position=1,ParameterSetName="volumeCollection")]
+        [string]
+        $VolumeCollection,
         $Description,
         [switch]
         $Online,
@@ -103,25 +112,71 @@ function New-NSSnapshot
     }
     Process
     {
-        if($InputObject)
+        
+        
+        Write-Verbose "Checking to see if Snap name is in use"
+        if(Get-NSSnapShot -SnapName $name)
         {
-            $Volume = $InputObject.name
+            Write-Error "Snap $name is already in use"
+            return
+        }
+        
+        if($VolumeCollection)
+        {
+            Write-Verbose "Creating snapshot from volume collection"
+            #handles case issues and checks for volumes to snap
+            if($col = Get-NSVolumeCollection -Name $VolumeCollection)
+            {
+                if($col.volumes)
+                {
+                    $VolumeCollection = $col.name
+
+                    $sppr = new-object snapprotpolrequest
+                    $sppr.name = $Name
+                    if($Description){$sppr.description = $Description}
+                    if($Online){$sppr.online=$true}
+                    if($Writable){$sppr.writable=$true}
+
+                    $rtncode = $Script:NSUnit.snapProtPol($sid.Value,$VolumeCollection,$sppr)
+                }
+                else
+                {
+                    Write-Error "Volume collection has no volumes in it"
+                    return
+                }
+            }
+            else
+            {
+                Write-Error "Cant find volume collection"
+                return
+            }
         }
         else
         {
-            #bypass CASE issues
-            $Volume = Get-NSVolume | ?{$_.name -eq $Volume} | select -ExpandProperty Name
+            if($InputObject)
+            {
+                Write-Verbose "Volume object passed in, using that"
+                $Volume = $InputObject.name
+            }
+            else
+            {
+                #bypass CASE issues
+                Write-Verbose "volume names passed in, looking for volume object"
+                $Volume = Get-NSVolume | ?{$_.name -eq $Volume} | select -ExpandProperty Name
+            }
+            ##set prop
+            $snapattr = New-Object snapcreateattr
+            $snapattr.name = $Name
+            if($Description){$snapattr.description = $Description}
+            if($Online){$snapattr.online=$true}
+            if($Writable){$snapattr.writable=$true}
+            $str=""
+        
+            $rtncode = $Script:NSUnit.snapVol($sid.Value, $Volume, $snapattr,[ref]$str)
         }
-        ##set prop
-        $snapattr = New-Object snapcreateattr
-        $snapattr.name = $Name
-        if($Description){$snapattr.description = $Description}
-        if($Online){$snapattr.online=$true}
-        if($Writable){$snapattr.writable=$true}
-        $str=""
-        
-        $rtncode = $Script:NSUnit.snapVol($sid.Value, $Volume, $snapattr,[ref]$str)
-        
+
+
+
         if($rtncode -ne "Smok")
         {
             Write-Error "Error creating snapshot! code: $rtncode" -ErrorAction Stop
@@ -156,17 +211,26 @@ function Remove-NSSnapShot
         [Parameter(Mandatory=$true,
                    ValueFromPipeline=$true,
                    ValueFromPipelineByPropertyName=$true,
+                   ParameterSetName="cmd",
                    Position=0)]
         [string]
-        $Name,
+        $SnapName,
 
         #
         [Parameter(Mandatory=$true,
                    ValueFromPipelineByPropertyName=$true,
+                   ParameterSetName="cmd",
                    Position=1)]
         $Volume,
+        # the Snap object to remove
+        [Parameter(Mandatory=$true,
+                   ValueFromPipeline=$true,
+                   ParameterSetName="InputObject",
+                   Position=0)]
+        [snap]
+        $InputObject,
         
-        # Param2 help description
+        # Bypass any prompting and just remove it
         [switch]
         $Force
     )
@@ -181,10 +245,11 @@ function Remove-NSSnapShot
     }
     Process
     {
-        if($Volume.gettype().name -eq "vol"){$Volume=$Volume.name}
-        if($PSCmdlet.ShouldProcess($name,"Delete Snapshot from $volume"))
+        if($InputObject){$Volume = $InputObject.volume;$SnapName=$InputObject.name}
+        if($Volume -is "vol"){$Volume=$Volume.name}
+        if($PSCmdlet.ShouldProcess($Volume,"Delete Snapshot '$SnapName'"))
         {
-            $rtncode = $Script:nsunit.deleteSnap($sid.value,$volume,$name)
+            $rtncode = $Script:nsunit.deleteSnap($sid.value,$volume,$SnapName)
             if($rtncode -ne "SMok")
             {
                 write-error "Delete failed! Code: $rtncode"
@@ -198,11 +263,11 @@ function Remove-NSSnapShot
 }
 <#
 .Synopsis
-   Short description
+   Creates clone of a snapshot
 .DESCRIPTION
-   Long description
+   Creates a zero write clone from a snapshot
 .EXAMPLE
-   Example of how to use this cmdlet
+   
 .EXAMPLE
    Another example of how to use this cmdlet
 #>
@@ -211,10 +276,13 @@ function New-NSClone
     [CmdletBinding()]
     Param
     (
-        # can only contain letters,numbers,dash,dot - write regex
+        # Name of the new cloned volume
         [Parameter(Mandatory=$true,
-                   ValueFromPipelineByPropertyName=$true,
                    ValueFromPipeline=$true,
+                   ParameterSetName="string",
+                   Position=1)]
+        [Parameter(Mandatory=$true,
+                   ParameterSetName="inobj",
                    Position=1)]
         [ValidatePattern('^[a-z,A-Z,\d,\.,-]+$')]
         [string]
@@ -222,14 +290,12 @@ function New-NSClone
 
         # Param2 help description
         [Parameter(Mandatory=$true,
-                   ValueFromPipelineByPropertyName=$true,
                    Position=2,
                    ParameterSetName="string")]
         
         [string]
         $Snap,
         [Parameter(Mandatory=$true,
-                   ValueFromPipelineByPropertyName=$true,
                    Position=3,
                    ParameterSetName="string")]
         [string]
