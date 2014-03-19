@@ -7,6 +7,7 @@
 . $psScriptRoot\perfpolicy.ps1
 . $psScriptRoot\snap.ps1
 . $psScriptRoot\Initiator.ps1
+. $psScriptRoot\VolCol.ps1
 
 $myInvocation.MyCommand.ScriptBlock.Module.OnRemove = { 
     Clear-FormatData
