@@ -403,13 +403,13 @@ function Set-NSSnapState
         [string]
         $SnapName,
 
-        # Set volume online.
+        # Set snap online.
         [parameter(mandatory=$true,parametersetname='on')]
         [parameter(parametersetname='snap')]
         [parameter(parametersetname='inputobject')]
         [switch]
         $Online,
-        # Set volume Offline.
+        # Set snap Offline.
         [parameter(mandatory=$true,parametersetname='off')]
         [parameter(parametersetname='snap')]
         [parameter(parametersetname='inputobject')]
@@ -426,11 +426,7 @@ function Set-NSSnapState
     }
     Process
     {
-        Write-Host "Vol is $Volume and Snap is $SnapName"
         if($Volume){$volume = Get-NSVolume $Volume|select -ExpandProperty name}
-        if($SnapName){$snap = Get-NSSnapShot $SnapName|select -ExpandProperty name}
-        #Write-Host "Vol is $volume and Snap is $snap"
-        #if($InputObject){$Volume = $InputObject.name}
         $on = if($Online){$true}else{$false}
         $rtncode = $Script:NSUnit.onlineSnap($sid.Value, $volume, $SnapName, $on)
         if($rtncode -ne "Smok")
