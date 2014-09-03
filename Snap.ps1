@@ -261,6 +261,7 @@ function Remove-NSSnapShot
 
     }
 }
+
 <#
 .Synopsis
    Creates clone of a snapshot
@@ -367,6 +368,74 @@ function New-NSClone
                 Write-Error "Error Creating volume $Name! code: $rtncode"
             }
             Get-NSVolume $Name
+        }
+    }
+    End
+    {
+    }
+}
+
+<#
+.Synopsis
+   Change the Volume State.
+.DESCRIPTION
+   Allows you to set the volumes state to online or offline.
+.EXAMPLE
+   Set-NSVolumeState $myvol -offline
+.EXAMPLE
+   Set-NSVolumeState volName -online
+#>
+function Set-NSSnapState
+{
+    [CmdletBinding()]
+    Param
+    (
+        # Volume to set.
+        [Parameter(Mandatory=$true,
+                   ValueFromPipeline=$true,
+                   Position=0,ParameterSetName="snap")]
+        [string]
+        $Volume,
+        # Snap to set.
+        [Parameter(Mandatory=$true,
+                   ValueFromPipeline=$true,
+                   Position=1,ParameterSetName="snap")]
+        [string]
+        $SnapName,
+
+        # Set volume online.
+        [parameter(mandatory=$true,parametersetname='on')]
+        [parameter(parametersetname='snap')]
+        [parameter(parametersetname='inputobject')]
+        [switch]
+        $Online,
+        # Set volume Offline.
+        [parameter(mandatory=$true,parametersetname='off')]
+        [parameter(parametersetname='snap')]
+        [parameter(parametersetname='inputobject')]
+        [switch]
+        $Offline
+    )
+
+    Begin
+    {
+        if(-not $Script:NSUnit)
+        {
+            Write-Error "Connect to unit first!" -ErrorAction Stop
+        }
+    }
+    Process
+    {
+        Write-Host "Vol is $Volume and Snap is $SnapName"
+        if($Volume){$volume = Get-NSVolume $Volume|select -ExpandProperty name}
+        if($SnapName){$snap = Get-NSSnapShot $SnapName|select -ExpandProperty name}
+        #Write-Host "Vol is $volume and Snap is $snap"
+        #if($InputObject){$Volume = $InputObject.name}
+        $on = if($Online){$true}else{$false}
+        $rtncode = $Script:NSUnit.onlineSnap($sid.Value, $volume, $SnapName, $on)
+        if($rtncode -ne "Smok")
+        {
+            Write-Error "Error getting snapshot list!! code: $rtncode" -ErrorAction Stop
         }
     }
     End
