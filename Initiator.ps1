@@ -325,3 +325,50 @@ function Add-NSInitiatorGroupToVolume
     {
     }
 }
+function Remove-NSInitiatorGroupFromVolume
+{
+    [CmdletBinding()]
+    Param
+    (
+        # Param1 help description
+        [Parameter(ValueFromPipelineByPropertyName=$true,Position=0)]
+        $InitiatorGroup,
+        # group name
+        [Parameter(ValueFromPipelineByPropertyName=$true,Position=1)]
+        $Volume,
+        #access type
+        [Parameter(ValueFromPipelineByPropertyName=$true,Position=2)]
+        [ValidateSet("Both", "Snapshot", "Volume")]
+        $Access="Both"
+    )
+
+    Begin
+    {
+        if(-not $Script:NSUnit)
+        {
+            Write-Error "Connect to unit first!" -ErrorAction Stop
+        }
+         
+    }
+    Process
+    {
+        #if object given, get names
+        if($Volume.gettype().name -eq "vol"){$Volume=$Volume.name}else{$Volume = Get-NSVolume $Volume | select -ExpandProperty name}
+        if($InitiatorGroup.gettype().name -eq "initiatorgrp"){$InitiatorGroup=$InitiatorGroup.name}else{$InitiatorGroup = Get-NSInitiatorGroup $InitiatorGroup | select -ExpandProperty name}
+        
+        $applyto = switch($Access){
+                    "Both"{[smvolaclapply]::SMvolaclapplytoboth}
+                    "Snapshot"{[smvolaclapply]::SMvolaclapplytosnap}
+                    "Volume"{[smvolaclapply]::SMvolaclapplytovol}
+                    }
+
+        $rtncode = $Script:NSUnit.removeVolAcl($script:sid.value,$Volume,$applyto ,"*",$InitiatorGroup)
+        if($rtncode -ne "Smok")
+        {
+            Write-Error "Error adding $init to the list! code: $rtncode"
+        }
+    }
+    End
+    {
+    }
+}
