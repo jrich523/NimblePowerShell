@@ -33,7 +33,7 @@ Begin
         {
             Write-Error "Connect to unit first!" -ErrorAction Stop
         }
-        $ppl = new-object protectionpolicy 
+        $ppl = new-object Nimble.ProtectionPolicy 
         $rtncode = $Script:NSUnit.getProtPolList($sid.Value, [ref]$ppl)
         if($rtncode -ne "Smok")
         {

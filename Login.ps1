@@ -29,12 +29,12 @@ function Connect-NSArray
         $Password
     )
     #check for it blah blah
-    $script:nsunit = New-Object GroupMgmt
+    $script:nsunit = New-Object Nimble.GroupMgmt
     $script:nsunit.Url = "http://"+$SystemName+":4210/soap"
     $script:sid = [ref]""
     $return = $script:nsunit.login($UserName, $Password, $script:sid)
     if ($return -eq "SMok") {
-      $err = New-Object smErrorType
+      $err = New-Object Nimble.smErrorType
       $arrname = $script:nsunit.getGroupConfig($script:sid.value,[ref]$err).groupname
       Write-Host "Logged into array @ $arrname"
     }

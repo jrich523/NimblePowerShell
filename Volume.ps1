@@ -11,11 +11,16 @@
 function Get-NSVolume
 {
     [CmdletBinding()]
+    [OutputType([Nimble.Vol])]
     Param
     (
-        # Param1 help description
+        # Volume Name, wildcards are supported
         [Parameter(ValueFromPipeline=$true,Position=0)]
-        $Name = "*"
+        $Name = "*",
+
+        #Nimble Pool
+        [string]
+        $PoolName='default'
     )
 
     Begin
@@ -24,8 +29,8 @@ function Get-NSVolume
         {
             Write-Error "Connect to unit first!" -ErrorAction Stop
         }
-        $vols = New-Object Vol
-        $rtncode = $Script:NSUnit.getVolList($sid.Value, [ref]$vols)
+        $vols = New-Object Nimble.Vol
+        $rtncode = $Script:NSUnit.getVolList($sid.Value, $PoolName, [ref]$vols)
         if($rtncode -ne "Smok")
         {
             Write-Error "Error getting volume list! code: $rtncode" -ErrorAction Stop
@@ -108,7 +113,11 @@ function New-NSVolume
         # SnapShot warning percent
         [ValidateRange(0,100)]
         [int]
-        $SnapShotWarning=0
+        $SnapShotWarning=0,
+
+        #Pool name if running a nimble Pool.
+        [string]
+        $PoolName = "deafult"
 
     )
     DynamicParam {
@@ -117,8 +126,9 @@ function New-NSVolume
     }
     Begin
     {
-        $attr = New-Object VolCreateAttr
+        $attr = New-Object Nimble.VolCreateAttr
         $attr.size = $Size
+        $attr.poolname = $PoolName
         #vol prop
         $attr.warnlevel = $Size * ($VolumeWarning /100)
         $attr.quota = $Size * ($VolumeQuota/100)
@@ -197,7 +207,7 @@ function Set-NSVolumeState
         [switch]
         $Offline,
         [parameter(mandatory=$true,valuefrompipeline=$true,parametersetname="inputobject",Position=0)]
-        [vol]
+        [Nimble.vol]
         $InputObject
     )
 
@@ -255,7 +265,7 @@ function Remove-NSVolume
                    ValueFromPipeline=$true,
                    Position=0,
                    ParameterSetName="inputobject")]
-        [vol]
+        [Nimble.vol]
         $InputObject
     )
 
@@ -274,12 +284,13 @@ function Remove-NSVolume
         
         if($InputObject)
         {
-            $vol = $InputObject.name
+            $vol = $InputObject
         }
         else
         {
 
             $vol = Get-NSVolume $name
+            if(-not $vol){return}
         }
 
         $conns = $vol.numconnections
@@ -291,7 +302,7 @@ function Remove-NSVolume
         {
             if(-not $PSCmdlet.ShouldProcess("Connected Sessions","There are $conns open still, terminate?","Connected Hosts"))
             {
-                break
+                break #might need return
             }
         }
         if($vol.online)
@@ -343,7 +354,7 @@ function Get-NSVolumeACL
                    ValueFromPipeline=$true,
                    Position=0,
                    ParameterSetName="InputObject")]
-        [vol]
+        [Nimble.vol]
         $InputObject,
 
         # Param2 help description
