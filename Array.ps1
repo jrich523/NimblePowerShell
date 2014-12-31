@@ -18,3 +18,11 @@ function Get-NSArray
     }
 
 }
+
+function Test-NSConnection {
+
+    if(-not $Script:NSUnit)
+    {
+            Write-Error "Connect to unit first!" -ErrorAction Stop
+    }
+}
