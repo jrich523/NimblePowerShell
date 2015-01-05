@@ -20,15 +20,13 @@ function Get-NSVolume
 
         #Nimble Pool
         [string]
-        $PoolName='default'
+        $PoolName=$script:poolname
     )
 
     Begin
     {
-        if(-not $Script:NSUnit)
-        {
-            Write-Error "Connect to unit first!" -ErrorAction Stop
-        }
+        Test-NSConnection
+
         $vols = New-Object Nimble.Vol
         $rtncode = $Script:NSUnit.getVolList($sid.Value, $PoolName, [ref]$vols)
         if($rtncode -ne "Smok")
@@ -117,15 +115,24 @@ function New-NSVolume
 
         #Pool name if running a nimble Pool.
         [string]
-        $PoolName = "deafult"
+        $PoolName = $Script:poolname
 
     )
     DynamicParam {
-        $options = Get-NSPerfPolicy -ErrorAction SilentlyContinue | select -ExpandProperty name
-        New-DynamicParam -Name PerformancePolicy -Options $options -Mandatory -Position 3
+        
+        if(Test-NSConnection -quiet)
+        {
+            $options = Get-NSPerfPolicy | select -ExpandProperty name
+            New-DynamicParam -Name PerformancePolicy -Options $options -Mandatory -Position 3
+        }
+        else
+        {
+            New-DynamicParam -Name PerformancePolicy -Mandatory -Position 3
+        }
     }
     Begin
     {
+        Test-NSConnection
         $attr = New-Object Nimble.VolCreateAttr
         $attr.size = $Size
         $attr.poolname = $PoolName
@@ -213,10 +220,7 @@ function Set-NSVolumeState
 
     Begin
     {
-        if(-not $Script:NSUnit)
-        {
-            Write-Error "Connect to unit first!" -ErrorAction Stop
-        }
+        Test-NSConnection
     }
     Process
     {
@@ -271,10 +275,7 @@ function Remove-NSVolume
 
     Begin
     {
-        if(-not $Script:NSUnit)
-        {
-            Write-Error "Connect to unit first!" -ErrorAction Stop
-        }
+        Test-NSConnection
         
         ###if($Volume.gettype().name -eq "vol"){$Volume=$Volume.name}
         if($Force){$ConfirmPreference= 'None'}
