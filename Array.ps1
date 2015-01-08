@@ -19,10 +19,27 @@ function Get-NSArray
 
 }
 
-function Test-NSConnection {
-
+function Test-NSConnection
+{
+    [CmdletBinding()]
+    Param([switch]$Quiet)
+    if(!$PsBoundParameters.ContainsKey("ErrorAction")) { $ErrorActionPreference = "Stop" }
     if(-not $Script:NSUnit)
     {
-            Write-Error "Connect to unit first!" -ErrorAction Stop
+            if($Quiet)
+            {
+                $false
+            }
+            else
+            {
+                Write-Error "Connect to unit first!" 
+            }
+    }
+    else
+    {
+        if($Quiet)
+        {
+            $true
+        }
     }
 }
