@@ -1,6 +1,6 @@
 <Types>
   <Type>
-    <Name>vol</Name>
+    <Name>nimble.vol</Name>
     <Members>
       <AliasProperty>
         <Name>Unit</Name>
@@ -35,19 +35,19 @@
       <ScriptProperty>
         <Name>LocalCreationTime</Name>
         <GetScriptBlock>
-          (new-object DateTime 1970,1,1,0,0,0,([DateTimeKind]::Utc)).addseconds($this.creationtime)
+          Convert-NSTime $this.creationtime
         </GetScriptBlock>
       </ScriptProperty>
       <ScriptProperty>
         <Name>LocalLastModified</Name>
         <GetScriptBlock>
-          (new-object DateTime 1970,1,1,0,0,0,([DateTimeKind]::Utc)).addseconds($this.lastmodified)
+          Convert-NSTime $this.lastmodified
         </GetScriptBlock>
       </ScriptProperty>
     </Members>
   </Type>
   <Type>
-    <Name>Snap</Name>
+    <Name>nimble.Snap</Name>
     <Members>
       <AliasProperty>
         <Name>Unit</Name>
@@ -68,13 +68,13 @@
       <ScriptProperty>
       <Name>LocalCreationTime</Name>
       <GetScriptBlock>
-        (new-object DateTime 1970,1,1,0,0,0,([DateTimeKind]::Utc)).addseconds($this.creationtime)
+        Convert-NSTime $this.creationtime
       </GetScriptBlock>
       </ScriptProperty>
       <ScriptProperty>
       <Name>LocalLastModified</Name>
       <GetScriptBlock>
-        (new-object DateTime 1970,1,1,0,0,0,([DateTimeKind]::Utc)).addseconds($this.lastmodified)
+        Convert-NSTime $this.lastmodified
       </GetScriptBlock>
       </ScriptProperty>
       <ScriptProperty>
@@ -86,19 +86,19 @@
     </Members>
   </Type>
   <Type>
-    <Name>InitiatorGrp</Name>
+    <Name>nimble.InitiatorGrp</Name>
     <Members>
 
       <ScriptProperty>
         <Name>LocalCreationTime</Name>
         <GetScriptBlock>
-          (new-object DateTime 1970,1,1,0,0,0,([DateTimeKind]::Utc)).addseconds($this.creationtime)
+          Convert-NSTime $this.creationtime
         </GetScriptBlock>
       </ScriptProperty>
       <ScriptProperty>
         <Name>LocalLastModified</Name>
         <GetScriptBlock>
-          (new-object DateTime 1970,1,1,0,0,0,([DateTimeKind]::Utc)).addseconds($this.lastmodified)
+          Convert-NSTime $this.lastmodified
         </GetScriptBlock>
       </ScriptProperty>
       <ScriptProperty>
@@ -110,7 +110,7 @@
     </Members>
   </Type>
   <Type>
-    <Name>Initiator</Name>
+    <Name>nimble.Initiator</Name>
     <Members>
       <AliasProperty>
         <Name>IPAddress</Name>
@@ -119,13 +119,30 @@
       <ScriptProperty>
         <Name>LocalCreationTime</Name>
         <GetScriptBlock>
-          (new-object DateTime 1970,1,1,0,0,0,([DateTimeKind]::Utc)).addseconds($this.creationtime)
+          Convert-NSTime $this.creationtime
         </GetScriptBlock>
       </ScriptProperty>
       <ScriptProperty>
         <Name>LocalLastModified</Name>
         <GetScriptBlock>
-          (new-object DateTime 1970,1,1,0,0,0,([DateTimeKind]::Utc)).addseconds($this.lastmodified)
+          Convert-NSTime $this.lastmodified
+        </GetScriptBlock>
+      </ScriptProperty>
+    </Members>
+  </Type>
+  <Type>
+    <Name>Nimble.ChapUser</Name>
+    <Members>
+        <ScriptProperty>
+        <Name>LocalCreationTime</Name>
+        <GetScriptBlock>
+          Convert-NSTime $this.creationtime
+        </GetScriptBlock>
+      </ScriptProperty>
+      <ScriptProperty>
+        <Name>LocalLastModified</Name>
+        <GetScriptBlock>
+          Convert-NSTime $this.lastmodified
         </GetScriptBlock>
       </ScriptProperty>
     </Members>
