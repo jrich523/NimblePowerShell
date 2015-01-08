@@ -26,9 +26,20 @@ function Connect-NSArray
                    ValueFromPipelineByPropertyName=$true,
                    Position=1)]
         [string]
-        $Password
+        $Password,
+        # Specify a default pool name to be used. 'Default' is the default.
+        [Parameter(Mandatory=$false,
+                   ValueFromPipelineByPropertyName=$true,
+                   Position=2)]
+        [string]
+        $PoolName="Default"
     )
+    
+    #save default pool name
+    $script:poolname = $PoolName
+
     #check for it blah blah
+
     $script:nsunit = New-Object Nimble.GroupMgmt
     $script:nsunit.Url = "http://"+$SystemName+":4210/soap"
     $script:sid = [ref]""
