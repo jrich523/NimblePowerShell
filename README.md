@@ -1,6 +1,8 @@
 NimblePowerShell
 ================
 
+[![Join the chat at https://gitter.im/jrich523/NimblePowerShell](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/jrich523/NimblePowerShell?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 PowerShell Module for Nimble Storage
 
 [http://www.nimblestorage.com](http://www.nimblestorage.com "Nimble Storage")
