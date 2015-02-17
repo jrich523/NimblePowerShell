@@ -147,4 +147,40 @@
       </ScriptProperty>
     </Members>
   </Type>
+    <Type>
+    <Name>nimble.ProtectionPolicy</Name>
+    <Members>
+      <ScriptProperty>
+        <Name>PolicyType</Name>
+        <GetScriptBlock>
+          switch($this.appsync)
+          {
+            [Nimble.SmAppSync]::SMappregular {"Regular (None)"}
+            [Nimble.SmAppSync]::SMappvss {"VSS"}
+            [Nimble.SmAppSync]::SMappvmware {"VMware"}
+            [Nimble.SmAppSync]::SMapporcl {"Oracle"}
+            [Nimble.SmAppSync]::SMappsyncnum {"SyncNum"}
+          }
+        </GetScriptBlock>
+      </ScriptProperty>
+      <ScriptProperty>
+        <Name>LocalCreationTime</Name>
+        <GetScriptBlock>
+          Convert-NSTime $this.creationtime
+        </GetScriptBlock>
+      </ScriptProperty>
+      <ScriptProperty>
+        <Name>LocalLastModified</Name>
+        <GetScriptBlock>
+          Convert-NSTime $this.lastmodified
+        </GetScriptBlock>
+      </ScriptProperty>
+      <ScriptProperty>
+        <Name>LocalLastSnap</Name>
+        <GetScriptBlock>
+          Convert-NSTime $this.lastsnapcollcreationtime
+        </GetScriptBlock>
+      </ScriptProperty>
+    </Members>
+  </Type>
 </Types>

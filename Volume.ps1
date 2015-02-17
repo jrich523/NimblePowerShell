@@ -16,6 +16,7 @@ function Get-NSVolume
     (
         # Volume Name, wildcards are supported
         [Parameter(ValueFromPipeline=$true,Position=0)]
+        [string[]]
         $Name = "*",
 
         #Nimble Pool
@@ -37,7 +38,10 @@ function Get-NSVolume
     }
     Process
     {
-        $vols | where {$_.name -like $name}
+        foreach($n in $Name)
+        {
+            $vols | where {$_.name -like $n}
+        }
     }
     End
     {

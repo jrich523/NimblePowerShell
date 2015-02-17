@@ -24,6 +24,7 @@ function Get-NSVolumeCollection
     (
         # Param1 help description
         [Parameter(ValueFromPipeline=$true,Position=0)]
+        [string[]]
         $Name = "*"
     )
 
@@ -43,7 +44,10 @@ Begin
     }
     Process
     {
-        $ppl | where {$_.name -like $name}
+        foreach($n in $Name)
+        {
+            $ppl | where {$_.name -like $n}
+        }
     }
     End
     {
@@ -107,20 +111,29 @@ function New-NSVolumeCollection
     (
         # Param1 help description
         [Parameter(Mandatory=$true,
-                   ValueFromPipelineByPropertyName=$true,
+                   ValueFromPipeline=$true,
                    Position=0)]
-        $Param1,
-
-        # Param2 help description
-        [int]
-        $Param2
+        [string]
+        $Name
     )
 
     Begin
     {
+        Test-NSConnection
+        $ppc = new-object Nimble.ProtPolCreateAttr
+
     }
     Process
     {
+        
+        $ppc.name = $Name
+        $str=""
+        $rtncode = $script:nsunit.createProtPol($script:sid.Value,$attr)
+        if($rtncode -ne "Smok")
+        {
+            Write-Error "Error Creating Volume Collection $Name! code: $rtncode"
+        }
+        Get-NSVolumeCollection $Name
     }
     End
     {
