@@ -32,7 +32,7 @@ function Connect-NSArray
                    ValueFromPipelineByPropertyName=$true,
                    Position=2)]
         [string]
-        $PoolName="Default"
+        $PoolName="default"
     )
     
     #save default pool name
@@ -46,7 +46,11 @@ function Connect-NSArray
     $return = $script:nsunit.login($UserName, $Password, $script:sid)
     if ($return -eq "SMok") {
       $err = New-Object Nimble.smErrorType
-      $arrname = $script:nsunit.getGroupConfig($script:sid.value,[ref]$err).groupname
+      $script:GroupConfig = $script:nsunit.getGroupConfig($script:sid.value,[ref]$err)
+      $script:ArrayInfo = new-object Nimble.Array
+      #todo: need to figure out the best way to find the name
+      #$script:nsunit.getArrayInfo($script:sid.value,name,[ref]$script:ArrayInfo)
+      $arrname = $script:GroupConfig.groupname
       Write-Host "Logged into array @ $arrname"
     }
     else {
