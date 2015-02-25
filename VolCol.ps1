@@ -113,7 +113,7 @@ function New-NSVolumeCollection
         [Parameter(Mandatory=$true,
                    ValueFromPipeline=$true,
                    Position=0)]
-        [string]
+        [string[]]
         $Name
     )
 
