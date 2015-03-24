@@ -18,3 +18,28 @@ function Get-NSArray
     }
 
 }
+
+function Test-NSConnection
+{
+    [CmdletBinding()]
+    Param([switch]$Quiet)
+    if(!$PsBoundParameters.ContainsKey("ErrorAction")) { $ErrorActionPreference = "Stop" }
+    if(-not $Script:NSUnit)
+    {
+            if($Quiet)
+            {
+                $false
+            }
+            else
+            {
+                Write-Error "Connect to unit first!" 
+            }
+    }
+    else
+    {
+        if($Quiet)
+        {
+            $true
+        }
+    }
+}

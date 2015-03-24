@@ -16,20 +16,12 @@ function Get-NSPerfPolicy
         # Param1 help description
         [Parameter(ValueFromPipeline=$true,Position=0)]
         $Name="*"
-
     )
 
     Begin
     {
-        $err = $false
-        $rtnpol=@()
-        if(-not $Script:NSUnit)
-        {
-            $err=$true
-            Write-Error "Connect to unit first!"
-            return
-        }
-        $perfpoollist = new-object PerformancePolicy
+        Test-NSConnection
+        $perfpoollist = new-object Nimble.PerformancePolicy
         $rtncode = $script:nsunit.getperfpollist($script:sid.value,[ref]$perfpoollist)
         if($rtncode -ne "Smok")
         {
@@ -38,12 +30,7 @@ function Get-NSPerfPolicy
     }
     Process
     {
-        Write-Verbose "Processing Policies"
-        if(!$err)
-        {
-            Write-Verbose "Filter Volumes"
-            $perfpoollist | where { $_.name -and $_.name -like $name }
-        }
+        $perfpoollist | where { $_.name -and $_.name -like $name }
     }
     End
     {
@@ -88,7 +75,8 @@ function New-NSPerfPolicy
 
     )
     #no pipping so no need for begin/process/end blocks
-    $attr = new-object PerfPolCreateAttr
+    Test-NSConnection
+    $attr = new-object Nimble.PerfPolCreateAttr
     $attr.name = $Name
     $attr.description = $Description
     $attr.blocksize = $BlockSize

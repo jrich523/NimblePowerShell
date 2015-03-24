@@ -40,3 +40,19 @@ $HelpMessage
     $Dictionary.Add($Name, $Parameter)
     $Dictionary
 }
+
+
+function Convert-SecureStringToString
+{
+param([securestring]$securestring)
+    $Ptr = [System.Runtime.InteropServices.Marshal]::SecureStringToCoTaskMemUnicode($securestring)
+    [System.Runtime.InteropServices.Marshal]::PtrToStringUni($Ptr)
+    [System.Runtime.InteropServices.Marshal]::ZeroFreeCoTaskMemUnicode($Ptr)
+}
+
+
+function Convert-NSTime
+{
+param($dt)
+(new-object DateTime 1970,1,1,0,0,0,([DateTimeKind]::Utc)).addseconds($dt)
+}

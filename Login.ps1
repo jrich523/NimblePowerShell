@@ -26,16 +26,31 @@ function Connect-NSArray
                    ValueFromPipelineByPropertyName=$true,
                    Position=1)]
         [string]
-        $Password
+        $Password,
+        # Specify a default pool name to be used. 'Default' is the default.
+        [Parameter(Mandatory=$false,
+                   ValueFromPipelineByPropertyName=$true,
+                   Position=2)]
+        [string]
+        $PoolName="default"
     )
+    
+    #save default pool name
+    $script:poolname = $PoolName
+
     #check for it blah blah
-    $script:nsunit = New-Object GroupMgmt
+
+    $script:nsunit = New-Object Nimble.GroupMgmt
     $script:nsunit.Url = "http://"+$SystemName+":4210/soap"
     $script:sid = [ref]""
     $return = $script:nsunit.login($UserName, $Password, $script:sid)
     if ($return -eq "SMok") {
-      $err = New-Object smErrorType
-      $arrname = $script:nsunit.getGroupConfig($script:sid.value,[ref]$err).groupname
+      $err = New-Object Nimble.smErrorType
+      $script:GroupConfig = $script:nsunit.getGroupConfig($script:sid.value,[ref]$err)
+      $script:ArrayInfo = new-object Nimble.Array
+      #todo: need to figure out the best way to find the name
+      #$script:nsunit.getArrayInfo($script:sid.value,name,[ref]$script:ArrayInfo)
+      $arrname = $script:GroupConfig.groupname
       Write-Host "Logged into array @ $arrname"
     }
     else {
