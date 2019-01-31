@@ -1,9 +1,9 @@
 NimblePowerShell
 ================
 
+>
 > This is now fairly old and out of date (they thankfully moved to REST) so this likely wont work for you and even if it does, you probably shouldnt use it.
-
-[![Join the chat at https://gitter.im/jrich523/NimblePowerShell](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/jrich523/NimblePowerShell?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+>
 
 PowerShell Module for Nimble Storage
 
